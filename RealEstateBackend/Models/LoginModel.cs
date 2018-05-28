@@ -15,43 +15,49 @@ namespace RealEstateBackend.Models
         {
         }
 
-        public string Email
+        public int idUser
         {
             get;
             set;
         }
 
-        public string Password
+        public string email
         {
             get;
             set;
         }
 
-        public int Type
+        public string lastname
         {
             get;
             set;
         }
 
-        public int UserID
+        public string password
         {
             get;
             set;
         }
 
-        public string Name
+        public string phone
         {
             get;
             set;
         }
 
-        public string LastName
+        public string name
         {
             get;
             set;
         }
 
-        public string Phone
+        public int type
+        {
+            get;
+            set;
+        }
+
+        public string profile
         {
             get;
             set;
@@ -65,15 +71,24 @@ namespace RealEstateBackend.Models
 
             LoginModel login = new LoginModel();
 
+            string Pictures = "";
+
             while (reader.Read())
             {
-                login.UserID = Int32.Parse(reader["ID"].ToString());
-                login.Email = reader["Email"].ToString();
-                login.Password = reader["Password"].ToString();
-                login.Type = Int32.Parse(reader["Type"].ToString());
-                login.Name = reader["Name"].ToString();
-                login.LastName = reader["LastName"].ToString();
-                login.Phone = reader["Phone"].ToString();
+                login.idUser = Int32.Parse(reader["idUser"].ToString());
+                login.name = reader["Name"].ToString();
+                login.lastname = reader["LastName"].ToString();
+                login.email = reader["Email"].ToString();
+                login.password = reader["Password"].ToString();
+                login.phone = reader["Phone"].ToString();
+                login.type = Int32.Parse(reader["Type"].ToString());
+                Pictures = reader["idPictures"].ToString();
+            }
+
+            if (Pictures != "") {
+                int idPictures = Int32.Parse(Pictures);
+                ImageFile image = new ImageFile();
+                login.profile = image.GetImageFile(idPictures);
             }
 
             var json = JsonConvert.SerializeObject(login);
@@ -87,34 +102,25 @@ namespace RealEstateBackend.Models
             {
                 List<ParameterSchema> lstParams = new List<ParameterSchema>();
                 string query = string.Empty;
+                lstParams.Add(new ParameterSchema("Name", NewUser.name));
+                lstParams.Add(new ParameterSchema("LastName", NewUser.lastname));
+                lstParams.Add(new ParameterSchema("Email", NewUser.email));
+                lstParams.Add(new ParameterSchema("Password", NewUser.password));
+                lstParams.Add(new ParameterSchema("Phone", NewUser.phone));
+                lstParams.Add(new ParameterSchema("Type", NewUser.type));
 
-                lstParams.Add(new ParameterSchema("Email", NewUser.Email));
-                lstParams.Add(new ParameterSchema("Password", NewUser.Password));
-                lstParams.Add(new ParameterSchema("Type", NewUser.Type));
-                lstParams.Add(new ParameterSchema("Name", NewUser.Name));
-                lstParams.Add(new ParameterSchema("LastName", NewUser.LastName));
-                lstParams.Add(new ParameterSchema("Phone", NewUser.Phone));
+                query = "INSERT INTO User (Name,LastName,Email,Password,Phone,Type) " +
+                    "values(@Name,@LastName,@Email,@Password,@Phone,@Type)";
 
-                query = "INSERT INTO User (Email,Password,Type,Name,LastName,Phone) " +
-                    "values(@Email,@Password,@Type,@Name,@LastName,@Phone)";
+                string ans = conexionM.setExecuteQuery(query, lstParams);
 
-                return conexionM.setExecuteQuery(query, lstParams);
-            }
-            catch (Exception ex)
-            {
-                //throw ex;
-                return ex.Message;
-            }
-        }
+                if (profile != null)
+                {
+                    ImageFile Image = new ImageFile();
+                    Image.SaveImageFile(profile, Int32.Parse(ans));
+                }
 
-        public string DeleteUser(LoginModel user)
-        {
-            try
-            {
-                string query = "DELETE FROM User WHERE id=" + user.UserID;
-                string ans = conexionM.deleteExecuteQuery(query);
                 return ans;
-                //return conexionM.setExecuteQuery(query, lstParams);
             }
             catch (Exception ex)
             {
@@ -122,21 +128,38 @@ namespace RealEstateBackend.Models
                 return ex.Message;
             }
         }
+        /*
+               public string DeleteUser(LoginModel user)
+               {
 
-        public string UpdateUser(LoginModel user)
-        {
-            try
-            {
-                string query = "UPDATE User set Name='" + user.Name + "',LastName='" + user.LastName + "',Email='" + user.Email + "',Phone='" + user.Phone + "' WHERE id=" + user.UserID;
-                string ans = conexionM.deleteExecuteQuery(query);
-                return ans;
-                //return conexionM.setExecuteQuery(query, lstParams);
-            }
-            catch (Exception ex)
-            {
-                //throw ex;
-                return ex.Message;
-            }
-        }
+                   try
+                   {
+                       string query = "DELETE FROM User WHERE id=" + user.idUser;
+                       string ans = conexionM.deleteExecuteQuery(query);
+                       return ans;
+                       //return conexionM.setExecuteQuery(query, lstParams);
+                   }
+                   catch (Exception ex)
+                   {
+                       //throw ex;
+                       return ex.Message;
+                   }
+               }
+               /*
+       public string UpdateUser(LoginModel user)
+       {
+       try
+       {
+           string query = "UPDATE User set Name='" + user.name + "',LastName='" + user.lastname + "',Email='" + user.email + "',Phone='" + user.phone + "' WHERE id=" + user.idUser;
+           string ans = conexionM.deleteExecuteQuery(query);
+           return ans;
+           //return conexionM.setExecuteQuery(query, lstParams);
+       }
+       catch (Exception ex)
+       {
+           //throw ex;
+           return ex.Message;
+       }
+           }*/
     }
 }

@@ -1,4 +1,5 @@
 ﻿using RealEstateBackend.Models;
+using System.Web.Http;
 using System.Web.Mvc;
 
 namespace RealEstateBackend.Controllers
@@ -15,12 +16,12 @@ namespace RealEstateBackend.Controllers
         }
 
         [System.Web.Http.HttpPost]
-        public string SaveUser(LoginModel user)
+        public string SaveUser([FromBody] LoginModel user)
         {
             string saved = user.SaveUser(user);
             return saved;
         }
-
+        /*
         [System.Web.Http.HttpPost]
         public string DeleteUser(LoginModel user)
         {
@@ -33,6 +34,6 @@ namespace RealEstateBackend.Controllers
         {
             string updated = user.UpdateUser(user);
             return updated;
-        }
+        }*/
     }
 }
